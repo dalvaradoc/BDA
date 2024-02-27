@@ -1,5 +1,5 @@
 import re, os
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import mysql.connector as mysqlc
 
 scx = mysqlc.connect(
@@ -68,9 +68,9 @@ scur = scx.cursor()
 
 # - course
 # course_evaluated
-# evaluation
+# - evaluation
 # - exam
-# -- exam_taken
+# - exam_taken
 # - lecturer
 # - lecturers_group
 # - program
@@ -158,6 +158,8 @@ for row in exam:
 
 # Ahora se llenan los hechos
   
+# Se insert exam_taken
+  
 scur.execute("select year, semester, student_id, course_code, exam_id, score from student_has_exam join exam on student_has_exam.exam_id = exam.id;")
 exam_taken = scur.fetchall()
 
@@ -171,6 +173,24 @@ for row in exam_taken:
     dcur.execute("INSERT INTO exam_taken (time_id, student_id, lecturers_group_id, course_code, exam_id, score, count) VALUES (%s, %s, %s, %s, %s, %s, %s);", 
                  [time_id, row[2], row[3], row[3], row[4], row[5], 1])
 
+# Se inserta evaluation
+    
+scur.execute("select * from evaluation;")
+evaluation = scur.fetchall()
+
+for row in evaluation:
+    dcur.execute("INSERT INTO evaluation (course_code, lecturers_group_id, time_id, delivery, content, overall) VALUES (%s, %s, %s, %s, %s, %s);", 
+                 [row[0], row[0], row[-1].strftime("%Y%m%d"), row[1], row[2], row[3]])
+    
+# Se inserta course_evaluated, de momento la BD no tiene un tiempo de cuaando se hizo, asi que se le asigna uno aleatorio
+    
+scur.execute("select * from student_has_course;")
+course_evaluated = scur.fetchall()
+
+for row in course_evaluated:
+    dcur.execute("INSERT INTO course_evaluated (course_code, student_id, semester_id) VALUES (%s, %s, %s);", [
+        row[1], row[0], 1
+    ])
 
     
 dcx.commit()
