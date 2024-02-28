@@ -139,9 +139,11 @@ end_date = date(end_year,7,1)
 
 delta = end_date - start_date
 
+weekdays = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]
+
 for i in range(delta.days + 1):
     day = start_date + timedelta(days=i)
-    dcur.execute("INSERT INTO time (id, year, semester, month, day) VALUES (%s, %s, %s, %s, %s);", [day.strftime("%Y%m%d") , day.year, 1 if day.month < 6 else 2, day.month, day.day])
+    dcur.execute("INSERT INTO time (id, year, semester, month, day, weekday) VALUES (%s, %s, %s, %s, %s, %s);", [day.strftime("%Y%m%d") , day.year, 1 if day.month < 6 else 2, day.month, day.day, weekdays[day.weekday()]])
 
 # Se llena semester
     
