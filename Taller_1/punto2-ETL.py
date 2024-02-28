@@ -5,7 +5,7 @@ import mysql.connector as mysqlc
 scx = mysqlc.connect(
     host="localhost",
     user="root",
-    password="abc123xd",
+    password="###",
     database="bda"
 )
 
@@ -38,7 +38,7 @@ exec_sql_file(scur, "punto2-ini.sql")
 dcx = mysqlc.connect(
     host="localhost",
     user="root",
-    password="abc123xd",
+    password="###",
     database="bda_ws1"
 )
 
