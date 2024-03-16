@@ -1,11 +1,11 @@
-import re, os
+import re, os, random
 from datetime import date, timedelta, datetime
 import mysql.connector as mysqlc
 
 scx = mysqlc.connect(
     host="localhost",
     user="root",
-    password="###",
+    password="abc123xd",
     database="bda"
 )
 
@@ -38,7 +38,7 @@ exec_sql_file(scur, "punto2-ini.sql")
 dcx = mysqlc.connect(
     host="localhost",
     user="root",
-    password="###",
+    password="abc123xd",
     database="bda_ws1"
 )
 
@@ -131,7 +131,7 @@ for row in registration:
 
 # Se llena time desde start_date a end_date
     
-start_year = 2023
+start_year = 1970
 end_year = 2024
     
 start_date = date(start_year,1,1)
@@ -162,16 +162,15 @@ for row in exam:
   
 # Se insert exam_taken
   
-scur.execute("select year, semester, student_id, course_code, exam_id, score from student_has_exam join exam on student_has_exam.exam_id = exam.id;")
+scur.execute("SELECT year, semester, student_id, exam.course_code, exam_id, score FROM student_has_exam JOIN exam ON student_has_exam.exam_id = exam.id;")
 exam_taken = scur.fetchall()
 
 for row in exam_taken:
     year = row[0]
     sem = row[1]
-    time_id = str(year) + ("0"+str((sem-1)*6+2))[:2] + "01" # como de momento la BD no tiene fecha en examen, se elige una del semestre y año adecuados
+    # como de momento la BD no tiene fecha en examen, se elige una del semestre y año adecuados
+    time_id = str(year) + ("0"+str(random.randint(1+6*(sem-1),6+6*(sem-1))))[-2:] + ("0" + str(random.randint(1,28)))[-2:] 
     
-
-    # Además, de momento el lecturers_group_id es el mismo course_code
     dcur.execute("INSERT INTO exam_taken (time_id, student_id, lecturers_group_id, course_code, exam_id, score, count) VALUES (%s, %s, %s, %s, %s, %s, %s);", 
                  [time_id, row[2], row[3], row[3], row[4], row[5], 1])
 
@@ -182,7 +181,7 @@ evaluation = scur.fetchall()
 
 for row in evaluation:
     dcur.execute("INSERT INTO evaluation (course_code, lecturers_group_id, time_id, delivery, content, overall) VALUES (%s, %s, %s, %s, %s, %s);", 
-                 [row[0], row[0], row[-1].strftime("%Y%m%d"), row[1], row[2], row[3]])
+                 [row[1], row[1], row[-1].strftime("%Y%m%d"), row[1], row[2], row[3]])
     
 # Se inserta course_evaluated, de momento la BD no tiene un tiempo de cuaando se hizo, asi que se le asigna uno aleatorio
     
